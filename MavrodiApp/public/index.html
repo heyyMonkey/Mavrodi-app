@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lucky Bear Spin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <p class="eyebrow">Telegram Mini App Demo</p>
+      <h1>Lucky Bear Spin</h1>
+      <p class="subcopy">
+        One free spin every 24 hours. Most spins miss. A few land on <strong>3 Stars</strong>.
+        A tiny fraction unlocks the <strong>Bear gift</strong>.
+      </p>
+    </header>
+
+    <main class="panel">
+      <section class="status-card">
+        <div>
+          <p class="label">Player</p>
+          <p id="playerName" class="value">Connecting...</p>
+        </div>
+        <div>
+          <p class="label">Next free spin</p>
+          <p id="cooldown" class="value">Loading...</p>
+        </div>
+      </section>
+
+      <section class="odds-card">
+        <p class="label">Demo odds</p>
+        <div class="odds-grid">
+          <div>
+            <span>Nothing</span>
+            <strong>99%</strong>
+          </div>
+          <div>
+            <span>3 Stars</span>
+            <strong>0.99%</strong>
+          </div>
+          <div>
+            <span>Bear gift</span>
+            <strong>0.01%</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="spin-card">
+        <div id="resultCard" class="result-card neutral">
+          <p class="label">Latest result</p>
+          <h2 id="resultTitle">Ready to spin</h2>
+          <p id="resultText">Your daily demo spin is waiting.</p>
+        </div>
+        <button id="spinButton" class="spin-button">Spin now</button>
+        <p id="helperText" class="helper-text">This demo uses Telegram user data when opened inside Telegram.</p>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
