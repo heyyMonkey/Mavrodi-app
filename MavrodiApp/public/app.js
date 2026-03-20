@@ -218,11 +218,3 @@ loadState().catch((error) => {
   spinButton.disabled = true;
   helperText.textContent = error.message;
 });
-
-spinButton.addEventListener("click", spin);
-loadState().catch((error) => {
-  playerNameEl.textContent = "Connection failed";
-  cooldownEl.textContent = "--:--:--";
-  spinButton.disabled = true;
-  helperText.textContent = error.message;
-});
