@@ -144,21 +144,37 @@ body {
     radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.85), transparent 16%);
 }
 
-.wheel::after {
-  content: "MISS \A MISS \A BEAR \A MISS \A MISS \A STARS \A MISS \A MISS \A MISS \A MISS";
-  white-space: pre;
+.wheel-labels {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
+}
+
+.wheel-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 84px;
+  margin-left: -42px;
+  margin-top: -14px;
+  display: block;
+  text-align: center;
   font-weight: 700;
-  font-size: 0.9rem;
-  line-height: 1.9;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
   color: rgba(255, 255, 255, 0.95);
   text-shadow: 0 1px 3px rgba(15, 23, 42, 0.35);
-  transform: rotate(18deg);
+  transform:
+    rotate(calc(var(--label-angle) + 18deg))
+    translateY(-128px)
+    rotate(90deg);
   pointer-events: none;
-  opacity: 0.18;
+  z-index: 1;
+}
+
+.wheel-label:nth-child(3),
+.wheel-label:nth-child(6) {
+  font-size: 0.84rem;
+  color: #fff7ed;
 }
 
 .wheel.spinning {
