@@ -11,9 +11,18 @@ const resultCard = document.getElementById("resultCard");
 const resultTitle = document.getElementById("resultTitle");
 const resultText = document.getElementById("resultText");
 const helperText = document.getElementById("helperText");
+const wheel = document.getElementById("wheel");
 
 let state = null;
 let cooldownTimer = null;
+let spinInFlight = false;
+let wheelRotation = 0;
+
+const segmentAngles = {
+  nothing: [18, 54, 126, 162, 198, 234, 270, 306],
+  stars: [342],
+  bear: [90]
+};
 
 function getTelegramPayload() {
   const initData = tg?.initData || "";
@@ -102,8 +111,8 @@ function updateCooldown() {
 
   const remaining = Math.max(0, state.nextSpinAt - Date.now());
   cooldownEl.textContent = formatDuration(remaining);
-  spinButton.disabled = remaining > 0;
-  spinButton.textContent = remaining > 0 ? "Free spin used" : "Spin now";
+  spinButton.disabled = spinInFlight || remaining > 0;
+  spinButton.textContent = spinInFlight ? "Wheel is spinning..." : remaining > 0 ? "Free spin used" : "Spin now";
 }
 
 function startCooldownLoop() {
@@ -113,6 +122,37 @@ function startCooldownLoop() {
 
   updateCooldown();
   cooldownTimer = setInterval(updateCooldown, 1000);
+}
+
+function setWheelRotation(deg, animated) {
+  wheel.style.transition = animated
+    ? "transform 5000ms cubic-bezier(0.12, 0.8, 0.18, 1)"
+    : "none";
+  wheelRotation = deg;
+  wheel.style.transform = `rotate(${deg}deg)`;
+}
+
+function pickTargetAngle(outcome) {
+  const candidates = segmentAngles[outcome] || [18];
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
+function wait(ms) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+async function animateSpin(outcome) {
+  const targetAngle = pickTargetAngle(outcome);
+  const extraSpins = 360 * 8;
+  const normalizedCurrent = ((wheelRotation % 360) + 360) % 360;
+  const finalRotation = wheelRotation + extraSpins + (360 - normalizedCurrent) + targetAngle;
+
+  wheel.classList.add("spinning");
+  setWheelRotation(finalRotation, true);
+  await wait(5000);
+  wheel.classList.remove("spinning");
 }
 
 async function request(path, options = {}) {
@@ -147,20 +187,37 @@ async function loadState() {
 }
 
 async function spin() {
-  spinButton.disabled = true;
-  spinButton.textContent = "Spinning...";
+  spinInFlight = true;
+  updateCooldown();
+  helperText.textContent = "The wheel is turning...";
 
   try {
     const data = await request("/api/spin");
+    await animateSpin(data.outcome);
     state = data;
     applyResultView(data.outcome);
+    helperText.textContent =
+      data.outcome === "nothing"
+        ? "The wheel stopped on a miss. Your next free spin unlocks in 24 hours."
+        : data.outcome === "stars"
+          ? "The wheel landed on 3 Stars."
+          : "The wheel landed on the Bear gift.";
     startCooldownLoop();
   } catch (error) {
     helperText.textContent = error.message;
   } finally {
+    spinInFlight = false;
     updateCooldown();
   }
 }
+
+spinButton.addEventListener("click", spin);
+loadState().catch((error) => {
+  playerNameEl.textContent = "Connection failed";
+  cooldownEl.textContent = "--:--:--";
+  spinButton.disabled = true;
+  helperText.textContent = error.message;
+});
 
 spinButton.addEventListener("click", spin);
 loadState().catch((error) => {
