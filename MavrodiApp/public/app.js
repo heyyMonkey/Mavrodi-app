@@ -1,10 +1,14 @@
+// Telegram Mini Apps expose data on window.Telegram.WebApp.
+// These calls make the Mini App initialize and open in an expanded view.
 const tg = window.Telegram?.WebApp;
 if (tg) {
   tg.ready();
   tg.expand();
 }
 
+// Cache the main DOM elements once so the app can reuse them later.
 const playerNameEl = document.getElementById("playerName");
+// Ticket balance label in the top status bar.
 const ticketBalanceEl = document.getElementById("ticketBalance");
 const cooldownEl = document.getElementById("cooldown");
 const spinButton = document.getElementById("spinButton");
@@ -24,18 +28,25 @@ const inventoryCount = document.getElementById("inventoryCount");
 const tabs = [...document.querySelectorAll(".section-tab")];
 const pages = [...document.querySelectorAll(".page-panel")];
 
+// Shared frontend state.
+// `state` is the latest backend response for the current player.
 let state = null;
 let cooldownTimer = null;
 let spinInFlight = false;
 let caseInFlight = false;
 let wheelRotation = 0;
 
+// Visual stop points for the daily wheel animation.
+// The server decides the prize, then the UI chooses one matching angle.
 const spinSegmentAngles = {
   nothing: [18, 54, 126, 162, 198, 234, 270, 306],
   stars: [342],
   bear: [90]
 };
 
+// Build the payload used for every backend request.
+// In Telegram we send signed init data.
+// In a normal browser we fall back to a demo user so local testing still works.
 function getTelegramPayload() {
   const initData = tg?.initData || "";
   const tgUser = tg?.initDataUnsafe?.user;
@@ -63,6 +74,7 @@ function getTelegramPayload() {
   };
 }
 
+// Turn the Telegram user object into a readable display name.
 function formatName(user) {
   if (!user) {
     return "Unknown player";
@@ -72,10 +84,12 @@ function formatName(user) {
   return full || user.username || `Player ${user.id}`;
 }
 
+// Format numbers like 1000 -> 1,000.
 function formatNumber(value) {
   return new Intl.NumberFormat().format(value || 0);
 }
 
+// Convert remaining milliseconds into HH:MM:SS for the cooldown label.
 function formatDuration(ms) {
   if (ms <= 0) {
     return "Available now";
@@ -88,6 +102,7 @@ function formatDuration(ms) {
   return [hours, minutes, seconds].map((value) => String(value).padStart(2, "0")).join(":");
 }
 
+// Update the daily spin result card styling and text.
 function applySpinResultView(result) {
   const mapping = {
     nothing: {
@@ -118,6 +133,7 @@ function applySpinResultView(result) {
   resultText.textContent = view.text;
 }
 
+// Update the case opening result card styling and text.
 function applyCaseResultView(result) {
   const mapping = {
     nothing: {
@@ -153,6 +169,8 @@ function applyCaseResultView(result) {
   caseResultText.textContent = view.text;
 }
 
+// Render every saved reward into the inventory page.
+// Bears become video cards, stars become a badge, tickets become a bonus card.
 function renderInventory(items) {
   inventoryCount.textContent = `${items.length} item${items.length === 1 ? "" : "s"}`;
 
@@ -218,11 +236,13 @@ function renderInventory(items) {
     .join("");
 }
 
+// Refresh the top status bar and button states from the latest state.
 function updateHeaderState() {
   if (!state) {
     return;
   }
 
+  // Current player ticket amount from backend state.
   ticketBalanceEl.textContent = formatNumber(state.tickets);
 
   const remaining = Math.max(0, state.nextSpinAt - Date.now());
@@ -237,6 +257,7 @@ function updateHeaderState() {
       : "OPEN CASE";
 }
 
+// Start a one-second timer so the cooldown display updates live.
 function startCooldownLoop() {
   if (cooldownTimer) {
     clearInterval(cooldownTimer);
@@ -246,23 +267,27 @@ function startCooldownLoop() {
   cooldownTimer = setInterval(updateHeaderState, 1000);
 }
 
+// Apply the wheel rotation in CSS.
 function setWheelRotation(deg, animated) {
   wheel.style.transition = animated
-    ? "transform 5000ms cubic-bezier(0.12, 0.8, 0.18, 1)"
+    ? "transform 5000ms cubic-bezier(0.12, 0.8, 0.18, 1)" 
     : "none";
   wheelRotation = deg;
   wheel.style.transform = `rotate(${deg}deg)`;
 }
 
+// Pick one of the valid visual stop points for a given reward.
 function pickTargetAngle(outcome) {
   const candidates = spinSegmentAngles[outcome] || [18];
   return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
+// Small helper for waiting during animations.
 function wait(ms) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
+// Play the wheel animation and the pointer drop at the end.
 async function animateSpin(outcome) {
   const targetAngle = pickTargetAngle(outcome);
   const extraSpins = 360 * 8;
@@ -278,6 +303,7 @@ async function animateSpin(outcome) {
   wheel.classList.remove("spinning");
 }
 
+// Generic POST helper for all frontend -> backend API requests.
 async function request(path, options = {}) {
   const payload = getTelegramPayload();
   const response = await fetch(path, {
@@ -299,6 +325,7 @@ async function request(path, options = {}) {
   return data;
 }
 
+// Take fresh backend state and repaint the UI from it.
 function applyState(nextState) {
   state = nextState;
   playerNameEl.textContent = formatName(nextState.user);
@@ -311,12 +338,14 @@ function applyState(nextState) {
   updateHeaderState();
 }
 
+// Load the player state when the app first opens.
 async function loadState() {
   const data = await request("/api/state");
   applyState(data);
   startCooldownLoop();
 }
 
+// Daily free spin flow.
 async function spin() {
   spinInFlight = true;
   updateHeaderState();
@@ -344,6 +373,7 @@ async function spin() {
   }
 }
 
+// Ticket case opening flow.
 async function openCase() {
   caseInFlight = true;
   updateHeaderState();
@@ -366,12 +396,14 @@ async function openCase() {
   }
 }
 
+// Highlight the active top tab.
 function activateTab(targetId) {
   tabs.forEach((tab) => {
     tab.classList.toggle("active", tab.dataset.target === targetId);
   });
 }
 
+// Smooth-scroll horizontally to the chosen page.
 function scrollToPage(targetId) {
   const page = document.getElementById(targetId);
   if (!page) {
@@ -386,6 +418,7 @@ function scrollToPage(targetId) {
   activateTab(targetId);
 }
 
+// While the user swipes, keep the active tab matched to the visible page.
 function syncTabToScroll() {
   const trackBounds = pageTrack.getBoundingClientRect();
   let closestId = pages[0]?.id;
@@ -405,6 +438,7 @@ function syncTabToScroll() {
   }
 }
 
+// Wire up page navigation.
 tabs.forEach((tab) => {
   tab.addEventListener("click", () => scrollToPage(tab.dataset.target));
 });
@@ -413,6 +447,7 @@ pageTrack.addEventListener("scroll", syncTabToScroll, { passive: true });
 spinButton.addEventListener("click", spin);
 openCaseButton.addEventListener("click", openCase);
 
+// If the first load fails, disable gameplay and show the error.
 loadState().catch((error) => {
   playerNameEl.textContent = "Connection failed";
   ticketBalanceEl.textContent = "--";
