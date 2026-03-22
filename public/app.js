@@ -194,8 +194,13 @@ function renderInventory(items) {
       const created = new Date(item.createdAt).toLocaleString();
 
       if (item.type === "bear") {
-        const fallbackIndex = Math.abs(String(item.id || created).split("").reduce((sum, char) => sum + char.charCodeAt(0), 0)) % defaultBearImages.length;
-        const bearAsset = item.image || defaultBearImages[fallbackIndex];
+        const fallbackIndex =
+          Math.abs(String(item.id || created).split("").reduce((sum, char) => sum + char.charCodeAt(0), 0)) %
+          defaultBearImages.length;
+        const bearAsset =
+          typeof item.image === "string" && item.image.trim()
+            ? item.image
+            : defaultBearImages[fallbackIndex];
         return `
           <article class="inventory-item bear">
             <div class="inventory-media">
