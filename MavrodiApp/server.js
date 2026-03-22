@@ -4,19 +4,25 @@ import { createServer } from "node:http";
 import { dirname, extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
+// Resolve the important folders used by the app.
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const publicDir = join(__dirname, "public");
 const dataDir = join(__dirname, "data");
 const dataFile = join(dataDir, "players.json");
 
+// Main game configuration.
 const SPIN_INTERVAL_MS = 24 * 60 * 60 * 1000;
+const STARTER_TICKETS = 1000;
+const CASE_PRICE = 1000;
 
+// Minimal content types for the static files we serve.
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".js": "application/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".mp4": "video/mp4",
   ".png": "image/png",
   ".jpg": "image/jpeg",
   ".svg": "image/svg+xml"
@@ -30,6 +36,7 @@ if (!existsSync(dataFile)) {
   writeFileSync(dataFile, JSON.stringify({ players: {} }, null, 2));
 }
 
+// Load environment variables from .env without installing extra packages.
 function loadEnvFile() {
   const envPath = join(__dirname, ".env");
   if (!existsSync(envPath)) {
@@ -64,6 +71,7 @@ const BOT_TOKEN = process.env.BOT_TOKEN || "";
 const APP_URL = process.env.APP_URL || "";
 const SESSION_SECRET = process.env.SESSION_SECRET || "demo-secret";
 
+// Read and write the small JSON datastore.
 function readStore() {
   return JSON.parse(readFileSync(dataFile, "utf8"));
 }
@@ -72,11 +80,13 @@ function writeStore(store) {
   writeFileSync(dataFile, JSON.stringify(store, null, 2));
 }
 
+// Helper for sending JSON responses.
 function sendJson(res, status, payload) {
   res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
   res.end(JSON.stringify(payload));
 }
 
+// Serve frontend files from /public.
 function serveStatic(req, res) {
   const requestPath = req.url === "/" ? "/index.html" : req.url;
   const filePath = normalize(join(publicDir, requestPath));
@@ -98,6 +108,7 @@ function serveStatic(req, res) {
   res.end(body);
 }
 
+// Read JSON request bodies for POST endpoints.
 function collectBody(req) {
   return new Promise((resolve, reject) => {
     let body = "";
@@ -118,6 +129,8 @@ function collectBody(req) {
   });
 }
 
+// Telegram Mini App init data is signed.
+// These helpers rebuild and verify the signature before trusting the user object.
 function parseInitData(initData) {
   const params = new URLSearchParams(initData);
   const hash = params.get("hash") || "";
@@ -154,6 +167,7 @@ function validateInitData(initData) {
   return user;
 }
 
+// For local browser testing, create a stable demo user from SESSION_SECRET.
 function deriveDemoUser(fallbackUser = {}) {
   const rawId = String(fallbackUser.id || randomUUID());
   const signedId = createHmac("sha256", SESSION_SECRET).update(rawId).digest("hex");
@@ -165,24 +179,42 @@ function deriveDemoUser(fallbackUser = {}) {
   };
 }
 
+// Ensure a player record exists and has all required fields.
 function getPlayerRecord(store, user) {
   if (!store.players[user.id]) {
     store.players[user.id] = {
       user,
+      tickets: STARTER_TICKETS,
       wins: {
         stars: 0,
         bear: 0
       },
+      inventory: [],
       lastOutcome: null,
+      lastCaseOutcome: null,
       lastSpinAt: 0,
-      nextSpinAt: 0
+      nextSpinAt: 0,
+      casesOpened: 0
     };
   }
 
   store.players[user.id].user = user;
+  if (typeof store.players[user.id].tickets !== "number") {
+    store.players[user.id].tickets = STARTER_TICKETS;
+  }
+  if (!Array.isArray(store.players[user.id].inventory)) {
+    store.players[user.id].inventory = [];
+  }
+  if (typeof store.players[user.id].casesOpened !== "number") {
+    store.players[user.id].casesOpened = 0;
+  }
+  if (!Object.prototype.hasOwnProperty.call(store.players[user.id], "lastCaseOutcome")) {
+    store.players[user.id].lastCaseOutcome = null;
+  }
   return store.players[user.id];
 }
 
+// Random result for the daily free spin.
 function rollOutcome() {
   const roll = Math.random() * 100;
   if (roll < 0.01) {
@@ -196,17 +228,51 @@ function rollOutcome() {
   return "nothing";
 }
 
+// Random result for the 1000-ticket case.
+function rollCaseOutcome() {
+  const roll = Math.random() * 100;
+  if (roll < 5) {
+    return "bear";
+  }
+
+  if (roll < 25) {
+    return "tickets_500";
+  }
+
+  if (roll < 40) {
+    return "stars";
+  }
+
+  return "nothing";
+}
+
+// Add a reward item to the front of the player's inventory list.
+function addInventoryItem(record, item) {
+  record.inventory.unshift({
+    id: randomUUID(),
+    createdAt: Date.now(),
+    ...item
+  });
+}
+
+// Build the JSON state returned to the frontend.
 function createStateResponse(record, demoMode) {
   return {
     user: record.user,
+    tickets: record.tickets,
     wins: record.wins,
+    inventory: record.inventory,
     lastOutcome: record.lastOutcome,
+    lastCaseOutcome: record.lastCaseOutcome,
     lastSpinAt: record.lastSpinAt,
     nextSpinAt: record.nextSpinAt,
+    casesOpened: record.casesOpened,
+    casePrice: CASE_PRICE,
     demoMode
   };
 }
 
+// Optional Telegram DM after the daily spin.
 async function notifyTelegram(userId, outcome) {
   if (!BOT_TOKEN || !userId || String(userId).startsWith("demo-")) {
     return;
@@ -229,19 +295,19 @@ async function notifyTelegram(userId, outcome) {
   }).catch(() => {});
 }
 
+// What the bot sends back when the user types /start.
 async function sendStartMessage(chatId) {
   if (!BOT_TOKEN) {
     return { ok: false, description: "BOT_TOKEN is missing" };
   }
 
   const text = [
-    "Welcome to Lucky Bear Spin.",
+    "Welcome to Lucky Bear Lounge.",
     "",
     "You get 1 free spin every 24 hours.",
-    "Odds:",
-    "- Nothing: 99%",
-    "- 3 Stars: 0.99%",
-    "- Bear gift: 0.01%"
+    `You start with ${STARTER_TICKETS} tickets.`,
+    `Golden Bear Case costs ${CASE_PRICE} tickets.`,
+    "Open the Mini App to spin, open cases, and manage your inventory."
   ].join("\n");
 
   const payload = {
@@ -270,6 +336,7 @@ async function sendStartMessage(chatId) {
   return response.json();
 }
 
+// Main API handler for state loading, daily spin, and case opening.
 async function handleApi(req, res) {
   const body = await collectBody(req);
   const telegramUser = validateInitData(body.initData || "");
@@ -285,6 +352,7 @@ async function handleApi(req, res) {
     return;
   }
 
+  // Daily free spin endpoint.
   if (req.url === "/api/spin") {
     const now = Date.now();
     if (record.nextSpinAt > now) {
@@ -302,10 +370,20 @@ async function handleApi(req, res) {
 
     if (outcome === "stars") {
       record.wins.stars += 3;
+      addInventoryItem(record, {
+        type: "stars",
+        label: "STARS 3X",
+        amount: 3
+      });
     }
 
     if (outcome === "bear") {
       record.wins.bear += 1;
+      addInventoryItem(record, {
+        type: "bear",
+        label: "Bear Gift",
+        video: "/assets/bear.mp4"
+      });
     }
 
     writeStore(store);
@@ -317,9 +395,60 @@ async function handleApi(req, res) {
     return;
   }
 
+  // Ticket case endpoint.
+  if (req.url === "/api/case/open") {
+    if (record.tickets < CASE_PRICE) {
+      sendJson(res, 400, {
+        error: "Not enough tickets to open this case",
+        ...createStateResponse(record, demoMode)
+      });
+      return;
+    }
+
+    const outcome = rollCaseOutcome();
+    record.tickets -= CASE_PRICE;
+    record.lastCaseOutcome = outcome;
+    record.casesOpened += 1;
+
+    if (outcome === "tickets_500") {
+      record.tickets += 500;
+      addInventoryItem(record, {
+        type: "tickets",
+        label: "TICKETS +500",
+        amount: 500
+      });
+    }
+
+    if (outcome === "stars") {
+      record.wins.stars += 3;
+      addInventoryItem(record, {
+        type: "stars",
+        label: "STARS 3X",
+        amount: 3
+      });
+    }
+
+    if (outcome === "bear") {
+      record.wins.bear += 1;
+      addInventoryItem(record, {
+        type: "bear",
+        label: "Bear Gift",
+        video: "/assets/bear.mp4"
+      });
+    }
+
+    writeStore(store);
+    sendJson(res, 200, {
+      outcome,
+      ...createStateResponse(record, demoMode)
+    });
+    return;
+  }
+
   sendJson(res, 404, { error: "Not found" });
 }
 
+// Telegram webhook endpoint for bot messages.
 async function handleWebhook(req, res) {
   const update = await collectBody(req);
   const message = update.message;
@@ -334,6 +463,7 @@ async function handleWebhook(req, res) {
   sendJson(res, 200, { ok: true });
 }
 
+// Start the HTTP server and route incoming requests.
 const server = createServer(async (req, res) => {
   try {
     if (!req.url || !req.method) {
@@ -341,7 +471,10 @@ const server = createServer(async (req, res) => {
       return;
     }
 
-    if (req.method === "POST" && (req.url === "/api/state" || req.url === "/api/spin")) {
+    if (
+      req.method === "POST" &&
+      (req.url === "/api/state" || req.url === "/api/spin" || req.url === "/api/case/open")
+    ) {
       await handleApi(req, res);
       return;
     }
