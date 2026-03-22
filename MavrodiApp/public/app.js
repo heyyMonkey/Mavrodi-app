@@ -6,6 +6,9 @@ if (tg) {
   tg.expand();
 }
 
+const STATE_CACHE_KEY = "lucky-bear-state-v2";
+const PAGE_CACHE_KEY = "lucky-bear-page-v1";
+
 // Cache the main DOM elements once so the app can reuse them later.
 const playerNameEl = document.getElementById("playerName");
 // Ticket balance label in the top status bar.
@@ -170,7 +173,7 @@ function applyCaseResultView(result) {
 }
 
 // Render every saved reward into the inventory page.
-// Bears become video cards, stars become a badge, tickets become a bonus card.
+// Bears become image cards, stars become a badge, tickets become a bonus card.
 function renderInventory(items) {
   inventoryCount.textContent = `${items.length} item${items.length === 1 ? "" : "s"}`;
 
@@ -192,9 +195,7 @@ function renderInventory(items) {
         return `
           <article class="inventory-item bear">
             <div class="inventory-media">
-              <video controls muted playsinline preload="metadata">
-                <source src="${item.video}" type="video/mp4">
-              </video>
+              <img src="${item.image}" alt="${item.label}">
             </div>
             <div>
               <p class="label">Rare drop</p>
@@ -328,6 +329,7 @@ async function request(path, options = {}) {
 // Take fresh backend state and repaint the UI from it.
 function applyState(nextState) {
   state = nextState;
+  window.localStorage.setItem(STATE_CACHE_KEY, JSON.stringify(nextState));
   playerNameEl.textContent = formatName(nextState.user);
   helperText.textContent = nextState.demoMode
     ? "Demo mode is active because Telegram init data is not available outside Telegram."
@@ -340,6 +342,15 @@ function applyState(nextState) {
 
 // Load the player state when the app first opens.
 async function loadState() {
+  const cachedState = window.localStorage.getItem(STATE_CACHE_KEY);
+  if (cachedState) {
+    try {
+      applyState(JSON.parse(cachedState));
+    } catch {
+      window.localStorage.removeItem(STATE_CACHE_KEY);
+    }
+  }
+
   const data = await request("/api/state");
   applyState(data);
   startCooldownLoop();
@@ -401,6 +412,7 @@ function activateTab(targetId) {
   tabs.forEach((tab) => {
     tab.classList.toggle("active", tab.dataset.target === targetId);
   });
+  window.localStorage.setItem(PAGE_CACHE_KEY, targetId);
 }
 
 // Smooth-scroll horizontally to the chosen page.
@@ -447,6 +459,11 @@ pageTrack.addEventListener("scroll", syncTabToScroll, { passive: true });
 spinButton.addEventListener("click", spin);
 openCaseButton.addEventListener("click", openCase);
 
+const cachedPage = window.localStorage.getItem(PAGE_CACHE_KEY);
+if (cachedPage && document.getElementById(cachedPage)) {
+  requestAnimationFrame(() => scrollToPage(cachedPage));
+}
+
 // If the first load fails, disable gameplay and show the error.
 loadState().catch((error) => {
   playerNameEl.textContent = "Connection failed";
@@ -456,3 +473,4 @@ loadState().catch((error) => {
   openCaseButton.disabled = true;
   helperText.textContent = error.message;
 });
+
