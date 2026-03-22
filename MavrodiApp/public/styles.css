@@ -34,6 +34,7 @@ body {
     radial-gradient(circle at bottom right, rgba(45, 212, 191, 0.24), transparent 28%),
     linear-gradient(165deg, var(--bg-top), var(--bg-bottom));
   color: var(--text);
+  overflow-x: hidden;
 }
 
 button,
@@ -46,7 +47,10 @@ select {
 .app-shell {
   max-width: 860px;
   margin: 0 auto;
-  padding: 24px 16px 40px;
+  padding:
+    calc(20px + env(safe-area-inset-top))
+    16px
+    calc(40px + env(safe-area-inset-bottom));
 }
 
 .hero {
@@ -108,6 +112,9 @@ select {
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin: 16px 0 14px;
+  position: sticky;
+  top: calc(8px + env(safe-area-inset-top));
+  z-index: 5;
 }
 
 .section-tab {
@@ -132,6 +139,7 @@ select {
   gap: 16px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
+  touch-action: pan-x;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -522,7 +530,7 @@ select {
   font-weight: 700;
 }
 
-.inventory-media video {
+.inventory-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -586,13 +594,90 @@ code {
 }
 
 @media (max-width: 720px) {
+  .app-shell {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.2rem, 11vw, 3.2rem);
+  }
+
   .status-bar {
     grid-template-columns: 1fr;
+  }
+
+  .section-nav {
+    gap: 8px;
+  }
+
+  .section-tab {
+    padding: 11px 10px;
+    font-size: 0.9rem;
+  }
+
+  .page-track {
+    gap: 12px;
+  }
+
+  .wheel-card,
+  .case-card,
+  .inventory-card,
+  .info-card {
+    padding: 14px;
+    border-radius: 22px;
+  }
+
+  .wheel-stage {
+    width: min(90vw, 340px);
+  }
+
+  .wheel-label {
+    width: 78px;
+    margin-left: -39px;
+    font-size: 0.68rem;
+    transform:
+      rotate(var(--label-angle))
+      translateY(-112px)
+      rotate(90deg);
+  }
+
+  .wheel-center {
+    width: 84px;
+    height: 84px;
+    margin-left: -42px;
+    margin-top: -42px;
+    font-size: 0.84rem;
+  }
+
+  .case-visual {
+    min-height: 190px;
+  }
+
+  .case-box {
+    width: 180px;
+    height: 130px;
+  }
+
+  .case-core {
+    font-size: 1.6rem;
+  }
+
+  .case-prizes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .prize-chip {
+    text-align: center;
   }
 
   .inventory-head {
     align-items: start;
     flex-direction: column;
   }
-}
 
+  .inventory-grid {
+    grid-template-columns: 1fr;
+  }
+}
