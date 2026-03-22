@@ -105,7 +105,10 @@ function serveStatic(req, res) {
   const ext = extname(filePath);
   const contentType = mimeTypes[ext] || "application/octet-stream";
   const body = readFileSync(filePath);
-  res.writeHead(200, { "Content-Type": contentType });
+  res.writeHead(200, {
+    "Content-Type": contentType,
+    "Cache-Control": "no-store, no-cache, must-revalidate"
+  });
   res.end(body);
 }
 
@@ -503,6 +506,10 @@ const server = createServer(async (req, res) => {
   } catch (error) {
     sendJson(res, 500, { error: error.message || "Internal server error" });
   }
+});
+
+server.listen(PORT, () => {
+  console.log(`Lucky Bear Spin is running on http://localhost:${PORT}`);
 });
 
 server.listen(PORT, () => {
