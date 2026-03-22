@@ -47,6 +47,8 @@ const spinSegmentAngles = {
   bear: [90]
 };
 
+const defaultBearImages = ["/assets/bear-1.png", "/assets/bear-2.png", "/assets/bear-3.png"];
+
 // Build the payload used for every backend request.
 // In Telegram we send signed init data.
 // In a normal browser we fall back to a demo user so local testing still works.
@@ -192,10 +194,12 @@ function renderInventory(items) {
       const created = new Date(item.createdAt).toLocaleString();
 
       if (item.type === "bear") {
+        const fallbackIndex = Math.abs(String(item.id || created).split("").reduce((sum, char) => sum + char.charCodeAt(0), 0)) % defaultBearImages.length;
+        const bearAsset = item.image || defaultBearImages[fallbackIndex];
         return `
           <article class="inventory-item bear">
             <div class="inventory-media">
-              <img src="${item.image}" alt="${item.label}">
+              <img src="${bearAsset}" alt="${item.label}" onerror="this.onerror=null;this.src='${defaultBearImages[0]}'">
             </div>
             <div>
               <p class="label">Rare drop</p>
