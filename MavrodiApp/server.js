@@ -13,7 +13,7 @@ const dataFile = join(dataDir, "players.json");
 
 // Main game configuration.
 const SPIN_INTERVAL_MS = 24 * 60 * 60 * 1000;
-const STARTER_TICKETS = 1000;
+const STARTER_TICKETS = 10000000;
 const CASE_PRICE = 1000;
 
 // Minimal content types for the static files we serve.
