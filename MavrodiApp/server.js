@@ -15,6 +15,7 @@ const dataFile = join(dataDir, "players.json");
 const SPIN_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const STARTER_TICKETS = 10000000;
 const CASE_PRICE = 1000;
+const BEAR_ASSETS = ["/assets/bear-1.png", "/assets/bear-2.png", "/assets/bear-3.png"];
 
 // Minimal content types for the static files we serve.
 const mimeTypes = {
@@ -255,6 +256,10 @@ function addInventoryItem(record, item) {
   });
 }
 
+function pickRandomBearAsset() {
+  return BEAR_ASSETS[Math.floor(Math.random() * BEAR_ASSETS.length)];
+}
+
 // Build the JSON state returned to the frontend.
 function createStateResponse(record, demoMode) {
   return {
@@ -382,7 +387,7 @@ async function handleApi(req, res) {
       addInventoryItem(record, {
         type: "bear",
         label: "Bear Gift",
-        video: "/assets/bear.mp4"
+        image: pickRandomBearAsset()
       });
     }
 
@@ -433,7 +438,7 @@ async function handleApi(req, res) {
       addInventoryItem(record, {
         type: "bear",
         label: "Bear Gift",
-        video: "/assets/bear.mp4"
+        image: pickRandomBearAsset()
       });
     }
 
@@ -499,6 +504,11 @@ const server = createServer(async (req, res) => {
     sendJson(res, 500, { error: error.message || "Internal server error" });
   }
 });
+
+server.listen(PORT, () => {
+  console.log(`Lucky Bear Spin is running on http://localhost:${PORT}`);
+});
+
 
 server.listen(PORT, () => {
   console.log(`Lucky Bear Spin is running on http://localhost:${PORT}`);
