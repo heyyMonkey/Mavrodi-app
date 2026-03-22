@@ -1,0 +1,68 @@
+{
+  "players": {
+    "demo-6f9c347b96b227be": {
+      "user": {
+        "id": "demo-6f9c347b96b227be",
+        "first_name": "Demo",
+        "last_name": "Player",
+        "username": "demo_player"
+      },
+      "wins": {
+        "stars": 3,
+        "bear": 0
+      },
+      "lastOutcome": "stars",
+      "lastSpinAt": 1773928747505,
+      "nextSpinAt": 1774015147505
+    },
+    "demo-6d743f7aafc9315a": {
+      "user": {
+        "id": "demo-6d743f7aafc9315a",
+        "first_name": "Demo",
+        "last_name": "Player",
+        "username": "demo_player"
+      },
+      "wins": {
+        "stars": 0,
+        "bear": 0
+      },
+      "lastOutcome": "nothing",
+      "lastSpinAt": 1773928774533,
+      "nextSpinAt": 1774015174533
+    },
+    "demo-9182dca00891aecf": {
+      "user": {
+        "id": "demo-9182dca00891aecf",
+        "first_name": "Demo",
+        "last_name": "Player",
+        "username": "demo_player"
+      },
+      "wins": {
+        "stars": 0,
+        "bear": 0
+      },
+      "lastOutcome": "nothing",
+      "lastSpinAt": 1773948645595,
+      "nextSpinAt": 1774035045595
+    },
+    "demo-204d2d2a20b8672a": {
+      "user": {
+        "id": "demo-204d2d2a20b8672a",
+        "first_name": "Demo",
+        "last_name": "Player",
+        "username": "demo_player"
+      },
+      "tickets": 0,
+      "wins": {
+        "stars": 0,
+        "bear": 0
+      },
+      "inventory": [],
+      "lastOutcome": null,
+      "lastCaseOutcome": "nothing",
+      "lastSpinAt": 0,
+      "nextSpinAt": 0,
+      "casesOpened": 1
+    }
+  }
+}
