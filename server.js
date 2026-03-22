@@ -508,10 +508,9 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => {
-  console.log(`Lucky Bear Spin is running on http://localhost:${PORT}`);
-});
-
-server.listen(PORT, () => {
-  console.log(`Lucky Bear Spin is running on http://localhost:${PORT}`);
-});
+if (!globalThis.__luckyBearServerStarted) {
+  globalThis.__luckyBearServerStarted = true;
+  server.listen(PORT, () => {
+    console.log(`Lucky Bear Spin is running on http://localhost:${PORT}`);
+  });
+}
