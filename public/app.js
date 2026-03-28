@@ -28,6 +28,8 @@ const wheelPointer = document.getElementById("wheelPointer");
 const pageTrack = document.getElementById("pageTrack");
 const inventoryGrid = document.getElementById("inventoryGrid");
 const inventoryCount = document.getElementById("inventoryCount");
+const inventoryCountBadge = document.getElementById("inventoryCountBadge");
+const casesOpenedValue = document.getElementById("casesOpenedValue");
 const tabs = [...document.querySelectorAll(".section-tab")];
 const pages = [...document.querySelectorAll(".page-panel")];
 
@@ -177,7 +179,9 @@ function applyCaseResultView(result) {
 // Render every saved reward into the inventory page.
 // Bears become image cards, stars become a badge, tickets become a bonus card.
 function renderInventory(items) {
-  inventoryCount.textContent = `${items.length} item${items.length === 1 ? "" : "s"}`;
+  const countLabel = `${items.length} item${items.length === 1 ? "" : "s"}`;
+  inventoryCount.textContent = countLabel;
+  inventoryCountBadge.textContent = countLabel;
 
   if (!items.length) {
     inventoryGrid.innerHTML = `
@@ -254,6 +258,7 @@ function updateHeaderState() {
 
   // Current player ticket amount from backend state.
   ticketBalanceEl.textContent = formatNumber(state.tickets);
+  casesOpenedValue.textContent = formatNumber(state.casesOpened || 0);
 
   const remaining = Math.max(0, state.nextSpinAt - Date.now());
   cooldownEl.textContent = formatDuration(remaining);
