@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Lucky Bear Spin</title>
+  <title>Lucky Bear Lounge</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css?v=20260322b">
+  <link rel="stylesheet" href="/styles.css?v=20260328a">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -18,13 +18,13 @@
           <p class="eyebrow">Telegram Mini App</p>
           <h1>Lucky Bear Lounge</h1>
           <p class="subcopy">
-            A fast, flashy reward room built for Telegram. Spin daily, open premium cases, and grow your collection.
+            Claim your daily reward, play casual mini-games, complete missions, and climb the leaderboard.
           </p>
         </div>
         <aside class="hero-balance">
-          <p class="label">Current balance</p>
-          <p id="ticketBalance" class="hero-balance-value">1000</p>
-          <p class="hero-balance-note">Tickets power every reward run.</p>
+          <p class="label">Current stars</p>
+          <p id="balanceValue" class="hero-balance-value">100</p>
+          <p class="hero-balance-note">Use Stars to open Fortune Boxes and grow your level.</p>
         </aside>
       </div>
 
@@ -34,161 +34,202 @@
           <p id="playerName" class="value">Connecting...</p>
         </article>
         <article class="status-pill">
-          <p class="label">Next spin</p>
-          <p id="cooldown" class="value">Loading...</p>
+          <p class="label">Level</p>
+          <p id="levelValue" class="value">1</p>
         </article>
         <article class="status-pill">
-          <p class="label">Cases opened</p>
-          <p id="casesOpenedValue" class="value">0</p>
+          <p class="label">Streak</p>
+          <p id="streakValue" class="value">0</p>
         </article>
         <article class="status-pill">
-          <p class="label">Collection</p>
-          <p id="inventoryCountBadge" class="value">0 items</p>
-        </article>
-      </section>
-
-      <section class="highlight-strip">
-        <article class="highlight-card">
-          <p class="label">Daily room</p>
-          <h2>Wheel Room</h2>
-          <p>One free mystery spin every 24 hours with a dramatic landing.</p>
-        </article>
-        <article class="highlight-card">
-          <p class="label">Premium room</p>
-          <h2>Case Vault</h2>
-          <p>Trade tickets for shiny drops, bonus tickets, and rare Bear rewards.</p>
-        </article>
-        <article class="highlight-card">
-          <p class="label">Collection room</p>
-          <h2>Gallery</h2>
-          <p>Every reward lands in your inventory with a clean collectible layout.</p>
+          <p class="label">Next daily</p>
+          <p id="dailyCooldown" class="value">Loading...</p>
         </article>
       </section>
     </header>
 
-    <nav class="section-nav" aria-label="Game sections">
-      <button class="section-tab active" type="button" data-target="spinPage">Wheel</button>
-      <button class="section-tab" type="button" data-target="casesPage">Vault</button>
-      <button class="section-tab" type="button" data-target="inventoryPage">Gallery</button>
+    <nav class="section-nav" aria-label="Mini app sections">
+      <button class="section-tab active" type="button" data-target="homePage">Home</button>
+      <button class="section-tab" type="button" data-target="gamesPage">Games</button>
+      <button class="section-tab" type="button" data-target="missionsPage">Missions</button>
+      <button class="section-tab" type="button" data-target="galleryPage">Gallery</button>
+      <button class="section-tab" type="button" data-target="leaderboardPage">Leaders</button>
     </nav>
 
     <main id="pageTrack" class="page-track">
-      <section id="spinPage" class="page-panel">
-        <section class="section-head">
-          <div>
-            <p class="label">Featured room</p>
-            <h2>Daily Wheel Chamber</h2>
-          </div>
-          <p class="section-note">Tap the center cap to start your one free daily spin.</p>
-        </section>
+      <section id="homePage" class="page-panel">
+        <section class="feature-grid">
+          <article class="feature-card daily">
+            <p class="label">Daily reward</p>
+            <h2>Claim your drop</h2>
+            <p>Come back every 24 hours and build your streak bonus.</p>
+            <button id="claimDailyButton" class="feature-button" type="button">Claim Daily</button>
+          </article>
 
-        <div class="wheel-card">
-          <div class="wheel-stage">
-            <div id="wheelPointer" class="wheel-pointer" aria-hidden="true"></div>
-            <div id="wheel" class="wheel" aria-label="Prize wheel">
-              <div class="wheel-labels" aria-hidden="true">
-                <span class="wheel-label" style="--label-angle: 18deg;">MISS</span>
-                <span class="wheel-label" style="--label-angle: 54deg;">MISS</span>
-                <span class="wheel-label" style="--label-angle: 90deg;">BEAR</span>
-                <span class="wheel-label" style="--label-angle: 126deg;">MISS</span>
-                <span class="wheel-label" style="--label-angle: 162deg;">MISS</span>
-                <span class="wheel-label" style="--label-angle: 198deg;">STARS</span>
-                <span class="wheel-label" style="--label-angle: 234deg;">MISS</span>
-                <span class="wheel-label" style="--label-angle: 270deg;">MISS</span>
-                <span class="wheel-label" style="--label-angle: 306deg;">MISS</span>
-                <span class="wheel-label" style="--label-angle: 342deg;">MISS</span>
+          <article class="feature-card progress">
+            <p class="label">Progression</p>
+            <h2>Level journey</h2>
+            <div class="progress-card">
+              <div class="progress-row">
+                <span>Level</span>
+                <strong id="homeLevelValue">1</strong>
               </div>
-              <button id="spinButton" class="wheel-center" type="button">SPIN</button>
+              <div class="progress-row">
+                <span>XP</span>
+                <strong id="xpValue">0</strong>
+              </div>
+              <div class="progress-track">
+                <div id="xpBar" class="progress-fill"></div>
+              </div>
             </div>
-          </div>
-          <div class="mystery-copy">
-            <p class="label">Daily lucky spin</p>
-            <p>One free chance every 24 hours. Swipe left for the vault and your gallery.</p>
-          </div>
-        </div>
+          </article>
+        </section>
 
-        <section class="info-card">
-          <div id="resultCard" class="result-card neutral">
-            <p class="label">Latest result</p>
-            <h2 id="resultTitle">Ready to spin</h2>
-            <p id="resultText">Your daily demo spin is waiting.</p>
+        <section class="result-stack">
+          <div id="dailyResultCard" class="result-card neutral">
+            <p class="label">Daily status</p>
+            <h2 id="dailyResultTitle">Daily reward waiting</h2>
+            <p id="dailyResultText">Claim your daily reward to get Stars and streak progress.</p>
           </div>
-          <p id="helperText" class="helper-text">This demo uses Telegram user data when opened inside Telegram.</p>
+          <p id="helperText" class="helper-text">This Mini App uses Telegram WebApp data when available.</p>
         </section>
       </section>
 
-      <section id="casesPage" class="page-panel">
+      <section id="gamesPage" class="page-panel">
         <section class="section-head">
           <div>
-            <p class="label">Premium room</p>
-            <h2>Golden Bear Vault</h2>
+            <p class="label">Mini-games</p>
+            <h2>Pick a game room</h2>
           </div>
-          <p class="section-note">Spend tickets for instant reveals and collectible drops.</p>
+          <p class="section-note">Wheel is free once a day. Fortune Box costs 15 Stars.</p>
         </section>
 
-        <div class="case-card">
-          <div class="case-visual">
-            <div class="case-glow"></div>
-            <div class="case-box">
-              <span class="case-lid"></span>
-              <span class="case-core">LUCK</span>
+        <section class="games-grid">
+          <article class="game-card wheel-room">
+            <div class="wheel-stage compact">
+              <div id="wheelPointer" class="wheel-pointer" aria-hidden="true"></div>
+              <div id="wheel" class="wheel" aria-label="Daily wheel">
+                <div class="wheel-labels" aria-hidden="true">
+                  <span class="wheel-label" style="--label-angle: 18deg;">MISS</span>
+                  <span class="wheel-label" style="--label-angle: 54deg;">STARS</span>
+                  <span class="wheel-label" style="--label-angle: 90deg;">BEAR</span>
+                  <span class="wheel-label" style="--label-angle: 126deg;">MISS</span>
+                  <span class="wheel-label" style="--label-angle: 162deg;">STARS</span>
+                  <span class="wheel-label" style="--label-angle: 198deg;">MISS</span>
+                  <span class="wheel-label" style="--label-angle: 234deg;">STARS</span>
+                  <span class="wheel-label" style="--label-angle: 270deg;">MISS</span>
+                  <span class="wheel-label" style="--label-angle: 306deg;">MISS</span>
+                  <span class="wheel-label" style="--label-angle: 342deg;">STARS</span>
+                </div>
+                <button id="spinButton" class="wheel-center" type="button">SPIN</button>
+              </div>
             </div>
-          </div>
-          <div class="case-copy">
-            <p class="label">Ticket case</p>
-            <h2>Golden Bear Case</h2>
-            <p>Costs <strong>1000 tickets</strong>. Open it for a shot at rare inventory and bonus tickets.</p>
-          </div>
-          <div class="case-prizes">
-            <div class="prize-chip bear">Bear Gift</div>
-            <div class="prize-chip tickets">+500 Tickets</div>
-            <div class="prize-chip stars">STARS 3X</div>
-            <div class="prize-chip nothing">Nothing</div>
-          </div>
-          <button id="openCaseButton" class="case-button" type="button">OPEN CASE</button>
-        </div>
+            <div>
+              <p class="label">Daily wheel</p>
+              <h3>Wheel Chamber</h3>
+              <p>Free once per day. Ideal for quick streak energy and rare Bear pulls.</p>
+            </div>
+          </article>
 
-        <section class="info-card">
-          <div id="caseResultCard" class="result-card neutral">
-            <p class="label">Latest case</p>
-            <h2 id="caseResultTitle">Case unopened</h2>
-            <p id="caseResultText">Use tickets to open your first Golden Bear Case.</p>
+          <article class="game-card fortune-room">
+            <div class="fortune-visual">
+              <div class="fortune-orb"></div>
+              <div class="fortune-box">BOX</div>
+            </div>
+            <div>
+              <p class="label">Fortune Box</p>
+              <h3>Reward Box</h3>
+              <p>Spend 15 Stars for a random burst of XP, Stars, or a collectible reward.</p>
+            </div>
+            <button id="openFortuneButton" class="feature-button" type="button">Open Fortune Box</button>
+          </article>
+        </section>
+
+        <section class="result-stack">
+          <div id="gameResultCard" class="result-card neutral">
+            <p class="label">Game result</p>
+            <h2 id="gameResultTitle">Pick a room</h2>
+            <p id="gameResultText">Play a mini-game to see your latest reward here.</p>
           </div>
         </section>
       </section>
 
-      <section id="inventoryPage" class="page-panel">
+      <section id="missionsPage" class="page-panel">
         <section class="section-head">
           <div>
-            <p class="label">Your collection</p>
+            <p class="label">Daily missions</p>
+            <h2>Keep the momentum</h2>
+          </div>
+          <p class="section-note">Finish both missions and claim a 35 Stars reward.</p>
+        </section>
+
+        <section class="mission-grid">
+          <article class="mission-card">
+            <p class="label">Mission one</p>
+            <h3>Play games</h3>
+            <p id="missionPlayText">0 / 0</p>
+          </article>
+          <article class="mission-card">
+            <p class="label">Mission two</p>
+            <h3>Earn Stars</h3>
+            <p id="missionEarnText">0 / 0</p>
+          </article>
+        </section>
+
+        <section class="result-stack">
+          <div id="missionResultCard" class="result-card neutral">
+            <p class="label">Mission status</p>
+            <h2 id="missionResultTitle">Missions ready</h2>
+            <p id="missionResultText">Play games and earn Stars to unlock the mission reward.</p>
+          </div>
+          <button id="claimMissionButton" class="feature-button" type="button">Claim Mission Reward</button>
+        </section>
+      </section>
+
+      <section id="galleryPage" class="page-panel">
+        <section class="section-head">
+          <div>
+            <p class="label">Collection</p>
             <h2>Reward Gallery</h2>
           </div>
-          <p class="section-note">Every Bear, Stars card, and ticket bonus is stored here.</p>
+          <p class="section-note">Every Bear and Stars card stays here in your collection.</p>
         </section>
 
         <section class="inventory-card">
           <div class="inventory-head">
             <div>
-              <p class="label">Collection</p>
-              <h2>Your inventory</h2>
+              <p class="label">Collection count</p>
+              <h2>Your items</h2>
             </div>
             <p id="inventoryCount" class="inventory-count">0 items</p>
           </div>
-          <p class="inventory-note">
-            Place your Bear images at <code>public/assets/bear-1.png</code>, <code>public/assets/bear-2.png</code>,
-            and <code>public/assets/bear-3.png</code>. Each Bear reward will pick one at random.
-          </p>
           <div id="inventoryGrid" class="inventory-grid">
             <article class="inventory-empty">
               <p>No rewards yet.</p>
-              <p>Your Bear gifts and STARS 3X drops will appear here.</p>
+              <p>Your Bears and Stars cards will appear here.</p>
             </article>
+          </div>
+        </section>
+      </section>
+
+      <section id="leaderboardPage" class="page-panel">
+        <section class="section-head">
+          <div>
+            <p class="label">Leaderboard</p>
+            <h2>Top players</h2>
+          </div>
+          <p class="section-note">Climb by earning Stars and keeping your routine alive.</p>
+        </section>
+
+        <section class="leaderboard-card">
+          <div id="leaderboardList" class="leaderboard-list">
+            <article class="leaderboard-empty">Loading leaderboard...</article>
           </div>
         </section>
       </section>
     </main>
   </div>
 
-  <script type="module" src="/app.js?v=20260322b"></script>
+  <script type="module" src="/app.js?v=20260328a"></script>
 </body>
 </html>
