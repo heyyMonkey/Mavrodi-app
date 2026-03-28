@@ -89,7 +89,8 @@ function sendJson(res, status, payload) {
 
 // Serve frontend files from /public.
 function serveStatic(req, res) {
-  const requestPath = req.url === "/" ? "/index.html" : req.url;
+  const parsedUrl = new URL(req.url, "http://localhost");
+  const requestPath = parsedUrl.pathname === "/" ? "/index.html" : parsedUrl.pathname;
   const filePath = normalize(join(publicDir, requestPath));
 
   if (!filePath.startsWith(publicDir)) {
