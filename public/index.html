@@ -12,37 +12,76 @@
 </head>
 <body>
   <div class="app-shell">
-    <header class="hero">
-      <p class="eyebrow">Telegram Mini App Demo</p>
-      <h1>Lucky Bear Lounge</h1>
-      <p class="subcopy">
-        Spin your daily wheel, crack open ticket cases, and collect your rewards in inventory.
-      </p>
+    <header class="hero-shell">
+      <div class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Telegram Mini App</p>
+          <h1>Lucky Bear Lounge</h1>
+          <p class="subcopy">
+            A fast, flashy reward room built for Telegram. Spin daily, open premium cases, and grow your collection.
+          </p>
+        </div>
+        <aside class="hero-balance">
+          <p class="label">Current balance</p>
+          <p id="ticketBalance" class="hero-balance-value">1000</p>
+          <p class="hero-balance-note">Tickets power every reward run.</p>
+        </aside>
+      </div>
+
+      <section class="status-bar">
+        <article class="status-pill status-pill-wide">
+          <p class="label">Player</p>
+          <p id="playerName" class="value">Connecting...</p>
+        </article>
+        <article class="status-pill">
+          <p class="label">Next spin</p>
+          <p id="cooldown" class="value">Loading...</p>
+        </article>
+        <article class="status-pill">
+          <p class="label">Cases opened</p>
+          <p id="casesOpenedValue" class="value">0</p>
+        </article>
+        <article class="status-pill">
+          <p class="label">Collection</p>
+          <p id="inventoryCountBadge" class="value">0 items</p>
+        </article>
+      </section>
+
+      <section class="highlight-strip">
+        <article class="highlight-card">
+          <p class="label">Daily room</p>
+          <h2>Wheel Room</h2>
+          <p>One free mystery spin every 24 hours with a dramatic landing.</p>
+        </article>
+        <article class="highlight-card">
+          <p class="label">Premium room</p>
+          <h2>Case Vault</h2>
+          <p>Trade tickets for shiny drops, bonus tickets, and rare Bear rewards.</p>
+        </article>
+        <article class="highlight-card">
+          <p class="label">Collection room</p>
+          <h2>Gallery</h2>
+          <p>Every reward lands in your inventory with a clean collectible layout.</p>
+        </article>
+      </section>
     </header>
 
-    <section class="status-bar">
-      <article class="status-pill">
-        <p class="label">Player</p>
-        <p id="playerName" class="value">Connecting...</p>
-      </article>
-      <article class="status-pill">
-        <p class="label">Tickets</p>
-        <p id="ticketBalance" class="value">1000</p>
-      </article>
-      <article class="status-pill">
-        <p class="label">Next spin</p>
-        <p id="cooldown" class="value">Loading...</p>
-      </article>
-    </section>
-
     <nav class="section-nav" aria-label="Game sections">
-      <button class="section-tab active" type="button" data-target="spinPage">Spin</button>
-      <button class="section-tab" type="button" data-target="casesPage">Cases</button>
-      <button class="section-tab" type="button" data-target="inventoryPage">Inventory</button>
+      <button class="section-tab active" type="button" data-target="spinPage">Wheel</button>
+      <button class="section-tab" type="button" data-target="casesPage">Vault</button>
+      <button class="section-tab" type="button" data-target="inventoryPage">Gallery</button>
     </nav>
 
     <main id="pageTrack" class="page-track">
       <section id="spinPage" class="page-panel">
+        <section class="section-head">
+          <div>
+            <p class="label">Featured room</p>
+            <h2>Daily Wheel Chamber</h2>
+          </div>
+          <p class="section-note">Tap the center cap to start your one free daily spin.</p>
+        </section>
+
         <div class="wheel-card">
           <div class="wheel-stage">
             <div id="wheelPointer" class="wheel-pointer" aria-hidden="true"></div>
@@ -64,7 +103,7 @@
           </div>
           <div class="mystery-copy">
             <p class="label">Daily lucky spin</p>
-            <p>One free chance every 24 hours. Swipe left for cases and your inventory.</p>
+            <p>One free chance every 24 hours. Swipe left for the vault and your gallery.</p>
           </div>
         </div>
 
@@ -79,6 +118,14 @@
       </section>
 
       <section id="casesPage" class="page-panel">
+        <section class="section-head">
+          <div>
+            <p class="label">Premium room</p>
+            <h2>Golden Bear Vault</h2>
+          </div>
+          <p class="section-note">Spend tickets for instant reveals and collectible drops.</p>
+        </section>
+
         <div class="case-card">
           <div class="case-visual">
             <div class="case-glow"></div>
@@ -111,6 +158,14 @@
       </section>
 
       <section id="inventoryPage" class="page-panel">
+        <section class="section-head">
+          <div>
+            <p class="label">Your collection</p>
+            <h2>Reward Gallery</h2>
+          </div>
+          <p class="section-note">Every Bear, Stars card, and ticket bonus is stored here.</p>
+        </section>
+
         <section class="inventory-card">
           <div class="inventory-head">
             <div>
